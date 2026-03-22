@@ -13,7 +13,7 @@ adj(X,Y,X',Y') :- cell(X,Y,R), cell(X',Y',R'), Y' = Y+1, X' = X.
 :- stitch(X1,Y1,X,Y), stitch(X2,Y2,X,Y), (X1,Y1)!=(X2,Y2).
 % 3. Every pair of adjacent regions must be connected by a fixed number M>0 of stitches
 regions_adj(R,R') :- cell(X,Y,R), cell(X',Y',R'), adj(X,Y,X',Y'), R < R'.
-:- regions_adj(R,R'), m(M), not M {stitch(X,Y,X',Y') : cell(X,Y,R), cell(X',Y',R'), adj(X,Y,X',Y')} M.
+:- regions_adj(R,R'), m(M), not M { stitch(X,Y,X',Y') : cell(X,Y,R),  cell(X',Y',R'), adj(X,Y,X',Y'); stitch(X,Y,X',Y') : cell(X,Y,R'), cell(X',Y',R),  adj(X,Y,X',Y')} M.
 
 % 4. The numbers in the upmost row indicate the total number of holes per each column
 hole(X,Y) :- stitch(X,Y,X',Y').
