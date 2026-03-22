@@ -41,7 +41,7 @@ if nummodels == 0:
     sys.exit()
 
 # create grid
-grid = [[" " for _ in range(N)] for _ in range(N)]
+grid = [["." for _ in range(N)] for _ in range(N)]
 
 # draw stitches
 for (x, y, x1, y1) in stitches:
