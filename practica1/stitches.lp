@@ -1,35 +1,27 @@
 %Type 0
 
-% Este pareceme complicar o tema un pouco
-% adjacent mostra que celdas adllacentes forman o stitch, asegurandose que sean de regions distintas
-% { h_stitch(X,Y) : h_adjacent(X,Y,Y'), cell(X,Y,R), cell(X,Y',R'), R != R' }.
-% { v_stitch(X,Y) : v_adjacent(X,X',Y), cell(X,Y,R), cell(X',Y,R'), R != R' }.
+adj(X,Y,X',Y') :- cell(X,Y,R), cell(X',Y',R'), X' = X+1, Y' = Y.
+adj(X,Y,X',Y') :- cell(X,Y,R), cell(X',Y',R'), Y' = Y+1, X' = X.
 
-
-%%%%%%% Non sei se meter esto aqui ou se ten que ir en domXX.lp, por ahora queda aqui / en principio vai en dom.lp
-row(1..N).
-col(1..N).
-region(X,Y,R).     % región de cada celda
-adj(X,Y,X',Y').    % celdas adyacentes
-row_holes(F,N).    % agujeros por fila
-col_holes(C,N).    % agujeros por columna
-m(M).
-{stitch(X,Y,X1,Y1)}.
+{stitch(X,Y,X',Y')} :- adj(X,Y,X',Y').
 
 % 1. Each stitch must connect two different regions 
-:- stitch(X,Y,X',Y'), region(X,Y,R), region(X',Y',R).
+:- stitch(X,Y,X',Y'), cell(X,Y,R), cell(X',Y',R).
 
 % 2. Two stitches cannot share a hole 
-:- stitch(X,Y,X1,Y1), stitch(X2,Y2,X3,Y3), (X1,Y1)!=(X3,Y3), (X,Y)!=(X2,Y2), (X1,Y1)!=(X2,Y2), (X,Y)!=(X3,Y3).
-
+:- stitch(X,Y,X1,Y1), stitch(X,Y,X2,Y2), (X1,Y1)!=(X2,Y2).
+:- stitch(X1,Y1,X,Y), stitch(X2,Y2,X,Y), (X1,Y1)!=(X2,Y2).
 % 3. Every pair of adjacent regions must be connected by a fixed number M>0 of stitches
-adj_regions(R1,R2) :- region(X,Y,R1), region(X',Y',R2), adj(X,Y,X',Y'), R1 < R2.
-:- adj_regions(R1,R2), m(M), not M {stitch(A,B,C,D) : region(A,B,R1), region(C,D,R2)} M.
+regions_adj(R,R') :- cell(X,Y,R), cell(X',Y',R'), adj(X,Y,X',Y'), R < R'.
+:- regions_adj(R,R'), m(M), not M {stitch(X,Y,X',Y') : cell(X,Y,R), cell(X',Y',R'), adj(X,Y,X',Y')} M.
 
 % 4. The numbers in the upmost row indicate the total number of holes per each column
-:- col_holes(C,N), not N { stitch(X,C,X',Y') ; stitch(X,Y,X',C) } N.
+hole(X,Y) :- stitch(X,Y,X',Y').
+hole(X,Y) :- stitch(X',Y',X,Y).
+
+:- colholes(C,N), not N { hole(X,C) : cell(X,C,R) } N.
 
 % 5. The numbers in the leftmost column indicate the number of holes per each row 
-:- row_holes(F,N), not N {stitch(F,Y,X',Y') ; stitch(X,Y,F,Y')} N.
+:- rowholes(F,N), not N { hole(F,Y) : cell(F,Y,R) } N.
 
 #show stitch/4.
